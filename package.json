@@ -16,7 +16,8 @@
     "colorette": "^2.0.20",
     "discord.js": "^14.13.0",
     "math-expression-evaluator": "^2.0.3",
-    "mathjs": "^11.11.0"
+    "mathjs": "^11.11.0",
+    "pagination.djs": "^4.0.12"
   },
   "devDependencies": {
     "@sapphire/cli": "^1.6.1",

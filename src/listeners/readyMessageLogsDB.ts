@@ -4,7 +4,7 @@ import { ChannelType } from 'discord.js';
 import { DBMessageLogs } from '../lib/database/DBMessageLogs';
 
 @ApplyOptions<Listener.Options>({ once: true, event: Events.ClientReady })
-export class ReadyChannelsTableEvent extends Listener {
+export class ReadyMessageLogsDBListener extends Listener {
     public override async run() {
         const { client, database } = this.container;
         const guilds = client.guilds.cache.map(g => g.id);
@@ -22,7 +22,7 @@ export class ReadyChannelsTableEvent extends Listener {
 
             let logDB = new DBMessageLogs(database);
             channels.forEach(async (channel) => {
-                await logDB.channelAdd(Number(channel.id), channel.name, Number(guild.id));
+                await logDB.channelAdd(BigInt(channel.id), channel.name, BigInt(guild.id));
             });
         })
     }

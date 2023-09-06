@@ -1,11 +1,13 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
-import { PermissionFlagsBits } from 'discord.js';
+// import { ButtonBuilder, ButtonStyle, EmbedBuilder, PermissionFlagsBits } from 'discord.js';
+import { EmbedBuilder, PermissionFlagsBits } from 'discord.js';
 import { DBMessageLogs } from '../lib/database/DBMessageLogs';
 import { allowedChannels } from '../data/anon_channel.json';
 import { ChannelType } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
+import { Pagination } from 'pagination.djs';
 
 async function customReply(interaction: Command.ChatInputCommandInteraction, msg: string) {
     return await interaction.reply({ content: msg, ephemeral: true });
@@ -16,6 +18,7 @@ async function customReply(interaction: Command.ChatInputCommandInteraction, msg
     description: 'Make a post anonymously, the bot will send it on your behalf.'
 })
 export class AnonymousPostCommand extends Command {
+
     public override registerApplicationCommands(registry: Command.Registry) {
         registry.registerChatInputCommand(builder => {
             builder
@@ -108,18 +111,15 @@ export class AnonymousPostCommand extends Command {
 
                 switch (subCommand) {
                     case "allow":
-                        return this.allowPostInCurrentChannel(interaction);
+                        return await this.allowPostInSpecificChannel(interaction);
                     case "allowcurrent":
-
-                        break;
+                        return await this.allowPostInCurrentChannel(interaction);
                     case "disallow":
-
-                        break;
+                        return await this.disallowPostInSpecificChannel(interaction);
                     case "disallowcurrent":
-
-                        break;
+                        return await this.disallowPostInCurrentChannel(interaction);
                     case "whitelist":
-                        break;
+                        return await this.getWhileListChannel(interaction);
                 }
 
         }
@@ -127,27 +127,25 @@ export class AnonymousPostCommand extends Command {
     }
 
 
-
     private async postMsgInCurrentChannel(interaction: Command.ChatInputCommandInteraction) {
         const logDB = new DBMessageLogs(this.container.database);
 
         // check if the interaction's channel is in the allowedChannels JSON
         if (!allowedChannels.some(c => c === interaction.channelId)) {
-            const c_name = await logDB.channelGet(Number(interaction.channelId));
-            const msg = `❌ | You are not allowed to post anonymously in the channel \`${c_name?.channel_name}\`.`;
+            const channel = await logDB.channelGet(BigInt(interaction.channelId));
+            const msg = `❌ | You are not allowed to post anonymously in the channel \`${channel?.channel_name}\`.`;
             return await customReply(interaction, msg);
         }
 
         const text = interaction.options.getString("message", true);
         const { username, id } = interaction.user;
-        await logDB.messageAdd(Number(interaction.id), Number(id), username, text, Number(interaction.channelId));
+        await logDB.messageAdd(Number(interaction.id), Number(id), username, text, BigInt(interaction.channelId));
         await interaction.reply({ content: "Done!", ephemeral: true });
         return await interaction.channel?.send({
             content: `${text} \n\n(The above message was anonymously posted by a user)`,
             allowedMentions: {}
         });
     }
-
 
     private async postMsgInSpecifiedChannel(interaction: Command.ChatInputCommandInteraction) {
         const channel = interaction.options.getChannel("channel", true);
@@ -162,7 +160,7 @@ export class AnonymousPostCommand extends Command {
 
         const msg = interaction.options.getString("message", true);
         const logDB = new DBMessageLogs(this.container.database);
-        await logDB.messageAdd(Number(interaction.id), Number(u_id), u_name, msg, Number(c_id));
+        await logDB.messageAdd(Number(interaction.id), Number(u_id), u_name, msg, BigInt(c_id));
 
         await customReply(interaction, "Done!");
         return await interaction.channel?.send({
@@ -172,7 +170,7 @@ export class AnonymousPostCommand extends Command {
     }
 
 
-    private async allowPostInCurrentChannel(interaction: Command.ChatInputCommandInteraction) {
+    private async allowPostInSpecificChannel(interaction: Command.ChatInputCommandInteraction) {
         const channel = interaction.options.getChannel("channel", true);
 
         if (allowedChannels.some((c) => c === channel.id)) {
@@ -185,13 +183,138 @@ export class AnonymousPostCommand extends Command {
         }
 
         (allowedChannels as any[]).push(channel.id);
-        const write_path = path.join(__dirname, '../data/anon_channel.json');
 
+        const write_path = path.join(__dirname, '../data/anon_channel.json');
         fs.writeFileSync(write_path, JSON.stringify({ allowedChannels: allowedChannels }, null, 4));
 
-        return await interaction.reply({
-            content: `✅ | Allowed the channel \`${channel.name}\`.`,
-            ephemeral: true,
+        return await customReply(interaction, `✅ | Allowed the channel \`${channel.name}\`.`);
+    }
+
+    private async allowPostInCurrentChannel(interaction: Command.ChatInputCommandInteraction) {
+        const logDB = new DBMessageLogs(this.container.database);
+        const channel = await logDB.channelGet(BigInt(interaction.channelId));
+
+        if (allowedChannels.some((c) => c === interaction.channelId)) {
+            return await customReply(
+                interaction,
+                `❌ | The allowed channels list already contains \`${channel?.channel_name}\`. Channel ID - \`${interaction.channelId}\``
+            );
+        }
+
+        (allowedChannels as any[]).push(interaction.channelId);
+
+        const write_path = path.join(__dirname, '../data/anon_channel.json');
+        fs.writeFileSync(write_path, JSON.stringify({ allowedChannels: allowedChannels }, null, 4));
+
+        return await customReply(interaction, `✅ | Allowed the channel \`${channel?.channel_name}\`.`);
+    }
+
+    private async disallowPostInSpecificChannel(interaction: Command.ChatInputCommandInteraction) {
+        const channel = interaction.options.getChannel("channel", true);
+
+        if (!allowedChannels.some((c) => c === channel.id)) {
+            return await customReply(
+                interaction,
+                `❌ | The allowed channels does not contain \`${channel.name}\`.`
+            );
+        } else if (channel.type !== ChannelType.GuildText) {
+            return await customReply(interaction, `❌ | Channel \`${channel.name}\` is not a text channel!`);
+        }
+
+        const spliceStart = (allowedChannels as any[]).indexOf(channel.id);
+        (allowedChannels as any[]).splice(spliceStart, 1);
+
+        const write_path = path.join(__dirname, '../data/anon_channel.json');
+        fs.writeFileSync(write_path, JSON.stringify({ allowedChannels: allowedChannels }, null, 4));
+
+        return await customReply(interaction, `✅ | Disallowed the channel \`${channel.name}\`.`);
+    }
+
+    private async disallowPostInCurrentChannel(interaction: Command.ChatInputCommandInteraction) {
+        const logDB = new DBMessageLogs(this.container.database);
+        const channel = await logDB.channelGet(BigInt(interaction.channelId));
+
+        if (!allowedChannels.some((c) => c === interaction.channelId)) {
+            return await customReply(
+                interaction,
+                `❌ | The allowed channel list does not contain \`${channel?.channel_name}\`.`
+            );
+        }
+
+        const spliceStart = (allowedChannels as any[]).indexOf(channel?.channel_id);
+        (allowedChannels as any[]).splice(spliceStart, 1);
+
+        const write_path = path.join(__dirname, '../data/anon_channel.json');
+        fs.writeFileSync(write_path, JSON.stringify({ allowedChannels: allowedChannels }, null, 4));
+
+        return await customReply(interaction, `✅ | Disallowed the channel \`${channel?.channel_name}\`.`);
+    }
+
+    private async getWhileListChannel(interaction: Command.ChatInputCommandInteraction) {
+        // No allowed channels
+        if (allowedChannels.length == 0) {
+            const embed = new EmbedBuilder()
+                .setTitle("Allowed Channels")
+                .setDescription("No allowed channels");
+            return await interaction.reply({ embeds: [embed] });
+        }
+
+        // TODO: Convert to scroller?
+        const logDB = new DBMessageLogs(this.container.database);
+        const channels: string[] = [];
+
+        for (let i = 0; i < allowedChannels.length; i++) {
+            const channel = await logDB.channelGet(allowedChannels[i]);
+            if (!channel) continue;
+            if (channel.guild_id! === BigInt(interaction.guildId!)) {
+                channels.push(String(channel.channel_name));
+            }
+        }
+
+        if (channels.length == 0) {
+            const embed = new EmbedBuilder()
+                .setTitle("Allowed Channels")
+                .setDescription("No allowed channels");
+            return await interaction.reply({ embeds: [embed] });
+        }
+
+        const channelsPerPage = 10;
+
+        const embedList: EmbedBuilder[] = [];
+        for (let i = 0; i < channels.length; i += channelsPerPage) {
+            embedList.push(
+                new EmbedBuilder()
+                    .setTitle("Allowed Channels")
+                    .setDescription(channels.slice(i, i + channelsPerPage).join("\n")),
+            );
+        }
+
+        // const buttonList = [
+        //     new ButtonBuilder()
+        //         .setCustomId("previousbtn")
+        //         .setLabel("Previous")
+        //         .setStyle(ButtonStyle.Danger)
+        //         .setDisabled(false),
+        //     new ButtonBuilder()
+        //         .setCustomId("nextbtn")
+        //         .setLabel("Next")
+        //         .setStyle(ButtonStyle.Success)
+        //         .setDisabled(false)
+        // ];
+
+        // may need to tweak this as necessary
+        const pagination = new Pagination(interaction, {
+            firstEmoji: '⏮', // First button emoji
+            prevEmoji: '◀️', // Previous button emoji
+            nextEmoji: '▶️', // Next button emoji
+            lastEmoji: '⏭', // Last button emoji
+            prevLabel: "Previous",
+            nextLabel: "Next",
         });
+
+        // const buttons: Record<string, ButtonBuilder> = { "Previous": buttonList[0], "Next": buttonList[1] };
+        pagination.addEmbeds(embedList);
+        // pagination.setButtons(buttons);
+        return await pagination.reply();
     }
 }

@@ -7,11 +7,11 @@ export class DBMessageLogs {
     }
 
     // CRUD operations for `channels` table
-    async channelAdd(channel_id: number, channel_name: string, guild_id: number) {
+    async channelAdd(channel_id: bigint, channel_name: string, guild_id: bigint) {
         try {
             await this.db.$connect();
-            const c_name = await this.db.channels.findFirst({ where: { channel_id } });
-            if (!c_name) {
+            const channel = await this.db.channels.findUnique({ where: { channel_id } });
+            if (!channel) {
                 await this.db.channels.create({
                     data: {
                         channel_id,
@@ -22,18 +22,20 @@ export class DBMessageLogs {
             }
             await this.db.$disconnect();
         } catch (error) {
-            throw new Error("Could not perform operation: channelAdd");
+            throw error;
         }
     }
 
-    async channelGet(channel_id: number) {
+    async channelGet(channel_id: bigint) {
         try {
             await this.db.$connect();
-            const channel = await this.db.channels.findFirst({ where: { channel_id } });
+            // console.debug(`RECEIVED CHANNEL ID: ${channel_id}`);
+            
+            const channel = await this.db.channels.findUnique({ where: { channel_id } });
             await this.db.$disconnect();
             return channel;
         } catch (error) {
-            throw new Error("Could not perform operation: channelGet");
+            throw error;
         }
     }
 
@@ -46,7 +48,7 @@ export class DBMessageLogs {
             }
             await this.db.$disconnect();
         } catch (error) {
-            throw new Error("Could not perform operation: channelDelete");
+            throw error;
         }
     }
 
@@ -56,7 +58,7 @@ export class DBMessageLogs {
             await this.db.channels.update({ where: { channel_id }, data: { channel_name } });
             await this.db.$disconnect();
         } catch (error) {
-            throw new Error("Could not perform operation: channelUpdateName");
+            throw error;
         }
     }
 
@@ -66,11 +68,10 @@ export class DBMessageLogs {
         user_id: number,
         username: string,
         message: string,
-        channel_id: number
+        channel_id: bigint
     ) {
         try {
             await this.db.$connect();
-            const message_datetime = new Date();
             await this.db.message_logs.create({
                 data: {
                     message_id,
@@ -79,7 +80,7 @@ export class DBMessageLogs {
                     message,
                     original_message: message,
                     deleted: 0,
-                    message_datetime,
+                    message_datetime: new Date(),
                     channel_id
                 }
             });
@@ -98,7 +99,7 @@ export class DBMessageLogs {
             }
             await this.db.$disconnect();
         } catch (error) {
-            throw new Error("Could not perform operation: messageDelete");
+            throw error;
         }
     }
 
@@ -114,7 +115,7 @@ export class DBMessageLogs {
 
             await this.db.$disconnect();
         } catch (error) {
-            throw new Error("Could not perform operation: messageUpdate");
+            throw error;
         }
     }
 
@@ -127,7 +128,7 @@ export class DBMessageLogs {
             await this.db.$disconnect();
             return messages;
         } catch (error) {
-            throw new Error("Could not perform operation: messageCollect");
+            throw error;
         }
         
     }
