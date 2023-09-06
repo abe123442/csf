@@ -5,7 +5,7 @@ import { CseClient } from './cse-client';
 
 const client = new CseClient({
 	logger: {
-		level: LogLevel.Info
+		level: LogLevel.Debug
 	},
 	intents: [
         GatewayIntentBits.Guilds,
