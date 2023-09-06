@@ -13,12 +13,10 @@ export class CseClient extends SapphireClient {
             datasourceUrl: process.env.DATABASE_URL,
             log: ['query', 'info']
         });
-        await container.database.$connect();
         return super.login(token);
     }
 
     public override async destroy() {
-        await container.database.$disconnect();
         return super.destroy();
     }
 }
