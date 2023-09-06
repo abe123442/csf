@@ -1,9 +1,8 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command } from '@sapphire/framework';
+const math = require('mathjs');
 
 const illegalPhraseRegexes = [/`/g, /@/g];
-
-const math = async () => await import('mathjs');
 
 @ApplyOptions<Command.Options>({
     name: '24parse',
@@ -46,8 +45,7 @@ export class Parse24Command extends Command {
 
     private async tryCompileAndEvaluate(eqnString: string) {
         try {
-            const m = await math();
-            const equationObj = m.compile(eqnString);
+            const equationObj = math.compile(eqnString);
             if (!equationObj) {
                 throw Error;
             }
@@ -87,8 +85,7 @@ export class Parse24Command extends Command {
         const { equationOutcome } = evaluationOutcome;
 
         const outcomeAsNumber = Number(equationOutcome);
-        const m = await math();
-        if (m.isNaN(outcomeAsNumber)) {
+        if (math.isNaN(outcomeAsNumber)) {
             return {
                 success: false,
                 message: "Could not compile. The equation does not evaluate to a number.",
