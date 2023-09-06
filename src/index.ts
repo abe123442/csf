@@ -1,10 +1,11 @@
 import './lib/setup';
-import { LogLevel, SapphireClient } from '@sapphire/framework';
+import { LogLevel } from '@sapphire/framework';
 import { GatewayIntentBits, Partials } from 'discord.js';
+import { CseClient } from './cse-client';
 
-const client = new SapphireClient({
+const client = new CseClient({
 	logger: {
-		level: LogLevel.Debug
+		level: LogLevel.Info
 	},
 	intents: [
         GatewayIntentBits.Guilds,
@@ -21,7 +22,6 @@ const client = new SapphireClient({
         Partials.GuildMember, 
         Partials.User
     ],
-	loadMessageCommandListeners: true
 });
 
 const main = async () => {

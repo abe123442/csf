@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model carrot_board {
+  carrot_id        Int     @id @default(autoincrement())
+  emoji            String  @db.Char(40)
+  message_id       BigInt
+  user_id          BigInt
+  channel_id       BigInt
+  count            BigInt?
+  message_contents String? @db.Char(50)
+}
+
+model channels {
+  channel_id   BigInt         @id
+  guild_id     BigInt?
+  channel_name String?        @db.VarChar(64)
+  message_logs message_logs[]
+}
+
+model faq {
+  keyword String  @id
+  answer  String?
+  tags    String?
+}
+
+model message_logs {
+  message_id       BigInt   @id
+  user_id          BigInt
+  username         String   @db.Char(40)
+  message          String   @db.Char(2000)
+  original_message String   @db.Char(2000)
+  deleted          Int
+  message_datetime DateTime @db.Timestamp(6)
+  channel_id       BigInt
+  channels         channels @relation(fields: [channel_id], references: [channel_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model react_role_msgs {
+  msg_id           BigInt             @id
+  sender_id        BigInt
+  react_role_roles react_role_roles[]
+}
+
+model react_role_roles {
+  react_role_id   Int             @id @default(autoincrement())
+  role_id         BigInt?
+  emoji           String          @db.VarChar
+  msg_id          BigInt
+  react_role_msgs react_role_msgs @relation(fields: [msg_id], references: [msg_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model schedule_post {
+  scheduled_post_id Int     @id @default(autoincrement())
+  guild_id          BigInt
+  msg_id            BigInt
+  init_channel_id   BigInt
+  send_channel_id   BigInt
+  datetime          String  @db.Char(16)
+  reminder          String? @db.Char(16)
+  sent_msg_id       BigInt?
+}
+
+model standup_teams {
+  id       Decimal    @id @db.Decimal
+  standups standups[]
+}
+
+model standups {
+  id              Int           @id @default(autoincrement())
+  team_id         Decimal       @db.Decimal
+  user_id         Decimal       @db.Decimal
+  message_id      Decimal       @db.Decimal
+  standup_content String?
+  time_stamp      DateTime?     @default(now()) @db.Timestamp(6)
+  standup_teams   standup_teams @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
