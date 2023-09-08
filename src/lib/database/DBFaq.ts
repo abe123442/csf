@@ -17,6 +17,7 @@ export class DBFaq {
         }
     }
 
+    // might have to use raw sql query instead to provide pattern matching
     async faqGetTagged(tag: string) {
         try {
             await this.db.$connect();
