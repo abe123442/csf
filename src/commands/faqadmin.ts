@@ -73,7 +73,6 @@ export class FaqAdminCommand extends Command {
                     });
                 }
 
-                console.log("gets here");
                 const get_tags = interaction.options.get("tags");
                 if (get_tags != null) {
                     tags = String(get_tags.value);
