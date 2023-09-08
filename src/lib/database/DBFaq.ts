@@ -56,8 +56,10 @@ export class DBFaq {
             await this.db.$connect();
             await this.db.faq.create({ data: { keyword, answer, tags } });
             await this.db.$disconnect();
+            return true;
         } catch (error) {
-            throw error;
+            console.error(error);
+            return null;
         }
     }
 
@@ -66,8 +68,10 @@ export class DBFaq {
             await this.db.$connect();
             await this.db.faq.delete({ where: { keyword } });
             await this.db.$disconnect();
+            return true;
         } catch (error) {
-            throw error;
+            console.error(error);
+            return null;
         }
     }
 }
