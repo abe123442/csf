@@ -39,7 +39,7 @@ export class DBMessageLogs {
         }
     }
 
-    async channelDelete(channel_id: number) {
+    async channelDelete(channel_id: bigint) {
         try {
             await this.db.$connect();
             const channel = await this.db.channels.findUnique({ where: { channel_id } });
@@ -52,7 +52,7 @@ export class DBMessageLogs {
         }
     }
 
-    async channelUpdateName(channel_id: number, channel_name: string) {
+    async channelUpdateName(channel_id: bigint, channel_name: string) {
         try {
             await this.db.$connect();
             await this.db.channels.update({ where: { channel_id }, data: { channel_name } });
