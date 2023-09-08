@@ -60,7 +60,6 @@ export class HandbookCommand extends Command {
             const url = `${apiURL}/courses/getCourse/${courseCode}`;
             const response = await axios.get(url);
             data = response.data;
-            console.log(data);
         } catch (e) {
             return await interaction.reply({
                 content: "Invalid course code.",
