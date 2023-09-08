@@ -14,7 +14,6 @@ async function customReply(interaction: Command.ChatInputCommandInteraction, msg
 }
 
 @ApplyOptions<Command.Options>({
-    name: 'anonymouspost',
     description: 'Make a post anonymously, the bot will send it on your behalf.'
 })
 export class AnonymousPostCommand extends Command {
@@ -123,7 +122,7 @@ export class AnonymousPostCommand extends Command {
                 }
 
         }
-        return;
+        return Promise.resolve();
     }
 
 

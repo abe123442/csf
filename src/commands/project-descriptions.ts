@@ -33,7 +33,7 @@ export class JokeCommand extends Command {
 
     public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
         const project = interaction.options.get("project", true).value;
-        if (!project) return;
+        if (!project) return Promise.resolve();
         const parsedOption = project.toString().toLowerCase();
         let msg = "";
         switch (parsedOption) {

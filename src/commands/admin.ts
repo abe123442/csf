@@ -26,10 +26,7 @@ const is_valid_course = (course: string) => {
     );
 };
 
-ApplyOptions<Command.Options>({
-    name: 'admin',
-    description: 'Admin-only commands.'
-})
+@ApplyOptions<Command.Options>({ description: 'Admin-only commands.' })
 export class AdminCommand extends Command {
     public override registerApplicationCommands(registry: Command.Registry) {
         registry.registerChatInputCommand(builder => builder
@@ -61,7 +58,7 @@ export class AdminCommand extends Command {
 
     public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
         try {
-            if (!interaction.inCachedGuild()) return;
+            if (!interaction.inCachedGuild()) return Promise.resolve();
 
             if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
                 return await interaction.reply({

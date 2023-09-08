@@ -90,7 +90,7 @@ export class CourseCommand extends Command {
     }
 
     public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
-        if (!interaction.inCachedGuild()) return;
+        if (!interaction.inCachedGuild()) return Promise.resolve();
         try {
             const subcommand = interaction.options.getSubcommand(true);
             const input_course = interaction.options.getString("course", true).toLowerCase();
@@ -158,7 +158,7 @@ export class CourseCommand extends Command {
 
                 // channel has type GuildBasedChannel
                 const permissionsFor = channel.permissionsFor(interaction.user.id);
-                if (!permissionsFor) return;
+                if (!permissionsFor) return Promise.resolve();
                 const permissions = new PermissionsBitField(permissionsFor.bitfield);
 
                 // Check if the member already has an entry in the channel's permission overwrites, and update
@@ -232,7 +232,7 @@ export class CourseCommand extends Command {
                 }
 
                 const permissionsFor = channel.permissionsFor(interaction.user.id);
-                if (!permissionsFor) return;
+                if (!permissionsFor) return Promise.resolve();
                 const permissions = new PermissionsBitField(permissionsFor.bitfield);
 
                 // Check if the member already has an entry in the channel's permission overwrites
