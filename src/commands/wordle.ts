@@ -145,7 +145,7 @@ export class WordleCommand extends Command {
                         player.guesses = this.guesses;
                         const editedPlayers = players;
                         fs.writeFileSync(
-                            "./config/wordle.json",
+                            get_write_path("../data/wordle.json"),
                             JSON.stringify({ players: editedPlayers }, null, 4),
                         );
                     }
@@ -248,7 +248,7 @@ export class WordleCommand extends Command {
         const canvas = Canvas.createCanvas(330, 397);
         const context = canvas.getContext("2d");
 
-        const background = await Canvas.loadImage("data/wordle_images/blank_box.png");
+        const background = await Canvas.loadImage(get_write_path("../data/wordle_images/blank_box.png"));
         context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
         context.font = "42px Clear Sans, Helvetica Neue, Arial, sans-serif";
