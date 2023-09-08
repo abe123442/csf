@@ -14,6 +14,7 @@
     "@sapphire/utilities": "^3.13.0",
     "@skyra/env-utilities": "^1.2.1",
     "axios": "^1.5.0",
+    "canvas": "^2.11.2",
     "cheerio": "^1.0.0-rc.12",
     "colorette": "^2.0.20",
     "discord.js": "^14.13.0",
