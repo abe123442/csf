@@ -3,7 +3,7 @@ import { Command } from '@sapphire/framework';
 import { EmbedBuilder } from 'discord.js';
 import { apiURL, handbookURL } from '../data/handbook.json';
 import axios from 'axios';
-import td from 'turndown';
+import textversion from 'textversionjs';
 
 interface CourseData {
 	title: string;
@@ -67,21 +67,9 @@ export class HandbookCommand extends Command {
 
 		if (data == undefined) return Promise.resolve();
 
-		const {
-			title,
-			code,
-			UOC,
-			// level,
-			description,
-			// study_level,
-			// school,
-			// campus,
-			equivalents,
-			raw_requirements,
-			exclusions,
-			// handbook_note,
-			terms
-		} = data;
+		const { title, code, UOC, description, equivalents, raw_requirements, exclusions, terms } = data;
+
+		const fmtDesc = (desc: string) => desc.substring(0, Math.min(desc.indexOf('\n'), 1024));
 
 		const courseInfo = new EmbedBuilder()
 			.setTitle(title)
@@ -91,7 +79,7 @@ export class HandbookCommand extends Command {
 			.addFields(
 				{
 					name: 'Overview',
-					value: new td().turndown(description),
+					value: fmtDesc(textversion(description)),
 					inline: false
 				},
 				{
@@ -108,7 +96,7 @@ export class HandbookCommand extends Command {
 					name: 'Equivalent Courses',
 					value:
 						Object.keys(equivalents)
-							.map((course) => `[${course}](${course})`)
+							.map((course) => `[${course}](${handbookURL}${course})`)
 							.join(', ') || 'None',
 					inline: true
 				},
@@ -120,11 +108,6 @@ export class HandbookCommand extends Command {
 							.join(', ') || 'None',
 					inline: true
 				}
-				/* { */
-				/*     name: "Course Outline", */
-				/*     value: `[${courseCode} Course Outline](${data["course_outline_url"]})`, */
-				/*     inline: true, */
-				/* }, */
 			)
 			.setTimestamp()
 			.setFooter({ text: "Data fetched from Circles' Api" });
