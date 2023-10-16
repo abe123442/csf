@@ -1,156 +1,156 @@
 export class connect4GameObj {
-    height: number;
-    width: number;
-    board: number[][];
-    players: number[];
-    turnOf: number;
-    movesLeft: number;
-    gameWon: boolean;
-    winner: string;
-    surrendered: boolean;
+	height: number;
+	width: number;
+	board: number[][];
+	players: number[];
+	turnOf: number;
+	movesLeft: number;
+	gameWon: boolean;
+	winner: string;
+	surrendered: boolean;
 
-    constructor(width = 7, height = 6) {
-        this.height = height;
-        this.width = width;
-        this.board = [];
-        this.players = [0, 0];
-        this.turnOf = 0;
-        this.movesLeft = width * height;
-        this.gameWon = false;
-        this.winner = "";
-        this.surrendered = false;
+	constructor(width = 7, height = 6) {
+		this.height = height;
+		this.width = width;
+		this.board = [];
+		this.players = [0, 0];
+		this.turnOf = 0;
+		this.movesLeft = width * height;
+		this.gameWon = false;
+		this.winner = '';
+		this.surrendered = false;
 
-        for (let i = 0; i < height; i++) {
-            this.board[i] = [];
-            for (let j = 0; j < width; j++) {
-                this.board[i][j] = -1;
-            }
-        }
-    }
+		for (let i = 0; i < height; i++) {
+			this.board[i] = [];
+			for (let j = 0; j < width; j++) {
+				this.board[i][j] = -1;
+			}
+		}
+	}
 
-    colIsFull(col: number) {
-        if (col < 0 || col >= this.width) return true;
-        return this.board[0][col] != -1;
-    }
+	colIsFull(col: number) {
+		if (col < 0 || col >= this.width) return true;
+		return this.board[0][col] != -1;
+	}
 
-    insertInCol(col: number) {
-        if (this.colIsFull(col)) return -1;
-        let row = 0;
-        while (row < this.height && this.board[row][col] == -1) {
-            row++;
-        }
-        this.board[row - 1][col] = this.turnOf;
-        this.turnOf = 1 - this.turnOf;
-        this.movesLeft--;
-        this.gameWon = this.checkWin(row - 1, col);
-        return 0;
-    }
+	insertInCol(col: number) {
+		if (this.colIsFull(col)) return -1;
+		let row = 0;
+		while (row < this.height && this.board[row][col] == -1) {
+			row++;
+		}
+		this.board[row - 1][col] = this.turnOf;
+		this.turnOf = 1 - this.turnOf;
+		this.movesLeft--;
+		this.gameWon = this.checkWin(row - 1, col);
+		return 0;
+	}
 
-    getGameWon() {
-        return this.gameWon;
-    }
+	getGameWon() {
+		return this.gameWon;
+	}
 
-    getMovesLeft() {
-        return this.movesLeft;
-    }
+	getMovesLeft() {
+		return this.movesLeft;
+	}
 
-    setMovesLeftZero() {
-        this.movesLeft = 0;
-    }
+	setMovesLeftZero() {
+		this.movesLeft = 0;
+	}
 
-    setWinner(winner: string) {
-        this.winner = winner;
-    }
+	setWinner(winner: string) {
+		this.winner = winner;
+	}
 
-    getWinner() {
-        return this.winner;
-    }
+	getWinner() {
+		return this.winner;
+	}
 
-    checkWin(row: number, col: number) {
-        if (row < 0 || row >= this.height || col < 0 || col >= this.width) {
-            return false;
-        }
+	checkWin(row: number, col: number) {
+		if (row < 0 || row >= this.height || col < 0 || col >= this.width) {
+			return false;
+		}
 
-        const target = this.board[row][col];
-        let count = 0;
+		const target = this.board[row][col];
+		let count = 0;
 
-        // check horizontal
-        let x = col;
-        let y = row;
-        // go left
-        while (x >= 0 && this.board[y][x] == target) {
-            x--;
-            count++;
-        }
-        x = col + 1;
-        // go right
-        while (x < this.width && this.board[y][x] == target) {
-            x++;
-            count++;
-        }
+		// check horizontal
+		let x = col;
+		let y = row;
+		// go left
+		while (x >= 0 && this.board[y][x] == target) {
+			x--;
+			count++;
+		}
+		x = col + 1;
+		// go right
+		while (x < this.width && this.board[y][x] == target) {
+			x++;
+			count++;
+		}
 
-        if (count >= 4) return true;
+		if (count >= 4) return true;
 
-        count = 0;
-        // check vertical
-        x = col;
-        // go up
-        while (y >= 0 && this.board[y][x] == target) {
-            y--;
-            count++;
-        }
-        y = row + 1;
-        // go down
-        while (y < this.height && this.board[y][x] == target) {
-            y++;
-            count++;
-        }
+		count = 0;
+		// check vertical
+		x = col;
+		// go up
+		while (y >= 0 && this.board[y][x] == target) {
+			y--;
+			count++;
+		}
+		y = row + 1;
+		// go down
+		while (y < this.height && this.board[y][x] == target) {
+			y++;
+			count++;
+		}
 
-        if (count >= 4) return true;
+		if (count >= 4) return true;
 
-        count = 0;
-        // check diag top left, bottom right
-        x = col;
-        y = row;
+		count = 0;
+		// check diag top left, bottom right
+		x = col;
+		y = row;
 
-        // go north-west
-        while (y >= 0 && x >= 0 && this.board[y][x] == target) {
-            x--;
-            y--;
-            count++;
-        }
-        // go south-east
-        x = col + 1;
-        y = row + 1;
-        while (y < this.height && x < this.width && this.board[y][x] == target) {
-            x++;
-            y++;
-            count++;
-        }
+		// go north-west
+		while (y >= 0 && x >= 0 && this.board[y][x] == target) {
+			x--;
+			y--;
+			count++;
+		}
+		// go south-east
+		x = col + 1;
+		y = row + 1;
+		while (y < this.height && x < this.width && this.board[y][x] == target) {
+			x++;
+			y++;
+			count++;
+		}
 
-        if (count >= 4) return true;
-        count = 0;
+		if (count >= 4) return true;
+		count = 0;
 
-        // check diag top right, bottom left
-        x = col;
-        y = row;
+		// check diag top right, bottom left
+		x = col;
+		y = row;
 
-        // go north-east
-        while (y >= 0 && x < this.width && this.board[y][x] == target) {
-            x++;
-            y--;
-            count++;
-        }
-        // go south-west
-        x = col - 1;
-        y = row + 1;
-        while (y < this.height && x >= 0 && this.board[y][x] == target) {
-            x--;
-            y++;
-            count++;
-        }
+		// go north-east
+		while (y >= 0 && x < this.width && this.board[y][x] == target) {
+			x++;
+			y--;
+			count++;
+		}
+		// go south-west
+		x = col - 1;
+		y = row + 1;
+		while (y < this.height && x >= 0 && this.board[y][x] == target) {
+			x--;
+			y++;
+			count++;
+		}
 
-        if (count >= 4) return true;
-        return false;
-    }
+		if (count >= 4) return true;
+		return false;
+	}
 }

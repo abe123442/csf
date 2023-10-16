@@ -52,18 +52,18 @@ export class UserEvent extends Listener {
 	private printReadyInformation() {
 		const { client } = this.container;
 
-		console.log("------------------------------------------------------------");
-        console.log(`Logged in as ${client.user?.tag} (ID: ${client.user?.id}).`);
-        console.log(`Connected to ${client.guilds.cache.size} guilds:`);
-        for (const guild of client.guilds.cache.values()) {
-            console.log(`- ${guild.name}`);
-        }
+		console.log('------------------------------------------------------------');
+		console.log(`Logged in as ${client.user?.tag} (ID: ${client.user?.id}).`);
+		console.log(`Connected to ${client.guilds.cache.size} guilds:`);
+		for (const guild of client.guilds.cache.values()) {
+			console.log(`- ${guild.name}`);
+		}
 
-		const commands = client.stores.find(reg => reg.name == 'commands');
-        console.log(`Loaded ${commands?.size} commands:`);
-        for (const command of commands!.values()) {
-            console.log(`- ${command.name}`);
-        }
-        console.log("------------------------------------------------------------");
+		const commands = client.stores.find((reg) => reg.name == 'commands');
+		console.log(`Loaded ${commands?.size} commands:`);
+		for (const command of commands!.values()) {
+			console.log(`- ${command.name}`);
+		}
+		console.log('------------------------------------------------------------');
 	}
 }

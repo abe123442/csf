@@ -8,20 +8,14 @@ const client = new CseClient({
 		level: LogLevel.Debug
 	},
 	intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildPresences,
-    ],
-    partials: [
-        Partials.Message, 
-        Partials.Channel, 
-        Partials.Reaction, 
-        Partials.GuildMember, 
-        Partials.User
-    ],
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.GuildVoiceStates,
+		GatewayIntentBits.GuildPresences
+	],
+	partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.GuildMember, Partials.User]
 });
 
 const main = async () => {
