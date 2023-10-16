@@ -1,6 +1,6 @@
-# TypeScript Sapphire Bot example
+# TypeScript Discord Bot (sapphirejs) 
 
-This is a basic setup of a Discord bot using the [sapphire framework][sapphire] written in TypeScript
+This is a rewrite of the CSESoc Discord bot using the [sapphire framework][sapphire] fully written in TypeScript.
 
 ## How to use it?
 
@@ -14,8 +14,15 @@ npm install
 
 This example can be run with `tsc-watch` to watch the files and automatically restart your bot.
 
+Note: you may need to run the following command if you are running this for the first time:
 ```sh
-npm run watch:start
+npx prisma migrate dev    # create the tables used by bot commands
+```
+
+Then run each of the below commands in a separate terminal tab / window.
+```sh
+docker-compose up         # to start the database and the database management tool 
+npm run watch:start       # to start the bot in watch mode 
 ```
 
 ### Production

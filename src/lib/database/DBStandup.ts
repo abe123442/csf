@@ -12,7 +12,7 @@ export class DBStandup {
             await this.db.$connect();
 
             const timeInterval = `${numDays} DAYS`;
-            const query = `
+            const query = new Sql([`
                 SELECT * FROM standups AS s
                 JOIN standup_teams AS t ON t.id = s.team_id
                 INNER JOIN (
@@ -20,12 +20,13 @@ export class DBStandup {
                     FROM standups AS s1
                     GROUP BY s1.user_id
                 ) AS s3 ON s3.user_id = s.user_id AND s.time_stamp = s3.date
-                WHERE t.id = ${channelParentId} AND s.time_stamp >= CURRENT_TIMESTAMP - INTERVAL \'${timeInterval}\';
-            `;
-            const standups = await this.db.$queryRaw<standups[]>`${query}`;
+                WHERE t.id = ${channelParentId} AND s.time_stamp >= CURRENT_TIMESTAMP - INTERVAL \'$1\';
+            `], [timeInterval]);
+            const standups = await this.db.$queryRaw<standups[]>(query);
             await this.db.$disconnect();
             return standups;
         } catch (error) {
+            console.error(error);
             throw error;
         }
     }
@@ -38,7 +39,7 @@ export class DBStandup {
     ) {
         try {
             await this.db.$connect();
-            
+
             const query_ensure_team_exists = new Sql(
                 [`INSERT INTO standup_teams (id) VALUES ($1) ON CONFLICT (id) DO NOTHING;`],
                 [team_id]
