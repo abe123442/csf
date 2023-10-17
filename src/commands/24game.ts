@@ -3,7 +3,10 @@ import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
 	name: '24',
-	description: 'Generates 4 random numbers from 0 to 9!'
+	description: 'Generates 4 random numbers from 0 to 9!',
+	detailedDescription: {
+		usage: '/24'
+	}
 })
 export class Generate24Command extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
