@@ -25,7 +25,10 @@ interface CourseData {
 
 @ApplyOptions<Command.Options>({
   name: 'handbook',
-  description: 'Displays information from the UNSW Handbook.'
+  description: 'Displays information from the UNSW Handbook.',
+  detailedDescription: {
+    usage: '/handbook courseinfo <coursecode>'
+  }
 })
 export class HandbookCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
