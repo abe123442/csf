@@ -3,7 +3,10 @@ import { Command } from '@sapphire/framework';
 
 @ApplyOptions<Command.Options>({
 	name: 'ping',
-	description: 'Replies with Pong!'
+	description: 'Replies with Pong!',
+	detailedDescription: {
+		usage: '/ping'
+	}
 })
 export class PingCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {

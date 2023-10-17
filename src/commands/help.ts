@@ -1,10 +1,9 @@
 import { ApplyOptions } from '@sapphire/decorators';
-import { Command } from '@sapphire/framework';
+import { Args, Command, CommandOptions, container } from '@sapphire/framework';
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, ComponentType, EmbedBuilder } from 'discord.js';
-import { commands } from '../data/help.json';
+// import { commands } from '../data/help.json';
 
 // Creates general object and id constants for function use
-
 const PAGE_SIZE = 10;
 
 const prevId = 'helpPrevButtonId';
@@ -27,7 +26,15 @@ const createNextButton = () =>
 	});
 
 const generateEmbed = (start: number) => {
-	const current = commands.slice(start, start + PAGE_SIZE);
+	const commands = container.stores.get('commands');
+	const current = commands
+		.map((command: Command<Args, CommandOptions>) => ({
+			name: command.name,
+			description: command.description,
+			usage: (command.detailedDescription as any).usage
+		}))
+		.sort((a, b) => a.name.localeCompare(b.name))
+		.slice(start, start + PAGE_SIZE);
 	const pageNum = Math.floor(start / PAGE_SIZE) + 1;
 
 	return new EmbedBuilder({
@@ -37,16 +44,27 @@ const generateEmbed = (start: number) => {
 			name: 'CSESoc Bot',
 			icon_url: 'https://i.imgur.com/EE3Q40V.png'
 		},
-		fields: current.map((command, index) => ({
-			name: `${start + index + 1}. ${command.name}`,
-			value: `${command.description}\nUsage: ${command.usage}`
-		}))
+		fields: current.map((command, index) =>
+			command.usage
+				? {
+						name: `${start + index + 1}. ${command.name}`,
+						value: `${command.description}\nUsage: ${command.usage}`
+				  }
+				: {
+						name: `${start + index + 1}. ${command.name}`,
+						value: `${command.description}`
+				  }
+		)
 	});
 };
 
 @ApplyOptions<Command.Options>({
-	name: 'help',
-	description: 'Displays info for all commands. Also type / in the chat to check out other commands.'
+	name: 'Help',
+	description: 'Displays info for all commands. Also type / in the chat to check out other commands.',
+	detailedDescription: {
+		usage: '/help',
+		examples: ['/help 1']
+	}
 })
 export class HelpCommand extends Command {
 	public override registerApplicationCommands(registry: Command.Registry) {
@@ -60,6 +78,7 @@ export class HelpCommand extends Command {
 
 	public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
 		// Calculates required command page index if inputted
+		const commands = this.container.stores.get('commands').map((cmd) => cmd);
 		const page = interaction.options.getNumber('page');
 		let currentIndex = 0;
 
