@@ -99,7 +99,7 @@ export class HandbookCommand extends Command {
 				},
 				{
 					name: 'Offering Terms',
-					value: terms.join(', '),
+					value: terms.join(', ') || 'None',
 					inline: true
 				},
 				{
